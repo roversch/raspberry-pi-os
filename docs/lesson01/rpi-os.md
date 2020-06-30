@@ -248,7 +248,7 @@ This function is one of the simplest in the kernel. It works with the `Mini UART
 
 ### Raspberry Pi devices 
 
-Now we are going to dig into something specific to the Raspberry Pi. Before we begin, I recommend that you download the [BCM2837 ARM Peripherals manual](https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf). BCM2837 is a board that is used by the Raspberry Pi 3 Models B, and B+. Sometime in our discussion, I will also mention BCM2835 and BCM2836 - those are names of the boars used in older versions of the Raspberry Pi.  
+Now we are going to dig into something specific to the Raspberry Pi. Before we begin, I recommend that you download the [BCM2837 ARM Peripherals manual](https://github.com/raspberrypi/documentation/files/1888662/BCM2837-ARM-Peripherals.-.Revised.-.V2-1.pdf). BCM2837 is a board that is used by the Raspberry Pi 3 Models B, and B+. Sometime in our discussion, I will also mention BCM2835 and BCM2836 - those are names of the board used in older versions of the Raspberry Pi.  
 
 Before we proceed to the implementation details, I want to share some basic concepts on how to work with memory-mapped devices. BCM2837 is a simple [SOC (System on a chip)](https://en.wikipedia.org/wiki/System_on_a_chip) board. In such a board, access to all devices is performed via memory-mapped registers. The Raspberry Pi 3 reserves the memory above address `0x3F000000` for devices. To activate or configure a particular device, you need to write some data in one of the device's registers. A device register is just a 32-bit region of memory. The meaning of each bit in each device register is described in the `BCM2837 ARM Peripherals` manual. Take a look at section 1.2.3 ARM physical addresses in the manual and the surrounding documentation for more context on why we use `0x3F000000` as a base address (even though `0x7E000000` is used throughout the manual).
 
@@ -367,7 +367,6 @@ Now our Mini UART is connected to the GPIO pins, and the pins are configured. Th
     put32(AUX_MU_LCR_REG,3);                //Enable 8 bit mode
     put32(AUX_MU_MCR_REG,0);                //Set RTS line to be always high
     put32(AUX_MU_BAUD_REG,270);             //Set baud rate to 115200
-    put32(AUX_MU_IIR_REG,6);                //Clear FIFO
 
     put32(AUX_MU_CNTL_REG,3);               //Finally, enable transmitter and receiver
 ```
@@ -474,7 +473,7 @@ disable_commandline_tags=1
 Now that we have gone through all of the source code, it is time to see it work. To build and test the kernel you need to  do the following:
 
 1. Execute `./build.sh` or `./build.bat` from [src/lesson01](https://github.com/s-matyukevich/raspberry-pi-os/tree/master/src/lesson01) in order to build the kernel. 
-1. Copy the generated `kernel8.img` file to the `boot` partition of your Raspberry Pi flash card and delete `kernel7.img`. Make sure you left all other files in the boot partition untouched (see [this](https://github.com/s-matyukevich/raspberry-pi-os/issues/43) issue for details)
+1. Copy the generated `kernel8.img` file to the `boot` partition of your Raspberry Pi flash card and delete `kernel7.img` as well as any other `kernel*.img` files that be present on your SD card. Make sure you left all other files in the boot partition untouched (see [43](https://github.com/s-matyukevich/raspberry-pi-os/issues/43) and [158](https://github.com/s-matyukevich/raspberry-pi-os/issues/158) issues for details)
 1. Modify the `config.txt` file as described in the previous section.
 1. Connect the USB-to-TTL serial cable as described in the [Prerequisites](../Prerequisites.md).
 1. Power on your Raspberry Pi.
